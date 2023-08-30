@@ -9,13 +9,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.when;
+//import static jdk.internal.vm.vector.VectorSupport.extract;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 
 public class CreateUsers {
 
     @Test
     public void createUser() {
-        Response response = RestAssured
+        Response response = (Response) RestAssured
                 .given()
                 .header("Content-Type", "application/json")
                 .body("{\n" +
@@ -23,14 +25,17 @@ public class CreateUsers {
                         "\t\"job\": \"plumber\"\n" +
                         "} ")
                 .when()
-                .post("https://reqres.in/api/users")
-                .andReturn();
+                .post("https://reqres.in/api/users");
+            response.then().assertThat()
+                    .body("name", equalTo("Din"))
+                    .body("job", equalTo("plumber"));
         response.prettyPrint();
+
     }
 
 
     @Test
-    public void CheckKeys() {
+    public void checkKeys() {
         Response response = RestAssured
                 .given()
                 .header("Content-Type", "application/json")
@@ -49,7 +54,7 @@ public class CreateUsers {
     }
 
     @Test
-    public void CheckStatusCode() {
+    public void checkStatusCode() {
 
         Response response = RestAssured
                 .given()
@@ -61,12 +66,12 @@ public class CreateUsers {
                 .when()
                 .post("https://reqres.in/api/users");
                 int statusCode = response.getStatusCode();
-        Assertions.assertEquals(201, response.statusCode());
+        Assertions.assertEquals(201, statusCode);
         response.prettyPrint();
     }
 
     @Test
-    public void NegativeCreateUserWithoutBodyParam() {
+    public void negativeCreateUserWithoutBodyParam() {
         Response response = RestAssured
                 .given()
                 .header("Content-Type", "application/json")
@@ -82,7 +87,7 @@ public class CreateUsers {
     }
 
     @Test
-    public void NegativeCreateUserWithOnlyParamJob() {
+    public void negativeCreateUserWithOnlyParamJob() {
         Response response = RestAssured
                 .given()
                 .header("Content-Type", "application/json")
@@ -100,18 +105,22 @@ public class CreateUsers {
         response.prettyPrint();
     }
 
-    //    @Test
-//    public void createUser1() {
-//        Map<String, String> body = new HashMap<>();
-//        body.put("name","Din");
-//        body.put("job","plumber");
-//        Response response = RestAssured
-//                .given()
-//                .header("Content-Type", "application/json")
-//                .body(body)
-//                .when()
-//                .post("https://reqres.in/api/users")
-//                .andReturn();
-//        response.prettyPrint();
-//    }
+
+    // Тест с помощью мапов
+        @Test
+    public void createUser1() {
+        Map<String, String> body = new HashMap<>();
+        body.put("name","Din");
+        body.put("job","plumber");
+        Response response = RestAssured
+                .given()
+                .header("Content-Type", "application/json")
+                .body(body)
+                .when()
+                .post("https://reqres.in/api/users");
+            response.then().assertThat()
+                    .body("name", equalTo("Din"))
+                    .body("job", equalTo("plumber"));
+            response.prettyPrint();
+    }
 }
